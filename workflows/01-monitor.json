@@ -1,0 +1,554 @@
+{
+  "name": "DataCenter Monitor",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        0
+      ],
+      "id": "c7b899c0-b358-484a-b0f1-a7065d1dcdd7",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM infrastructure_metrics WHERE status='critical';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        320,
+        80
+      ],
+      "id": "bc4f234f-db80-4529-bf08-14ed7763e4d6",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "HKabxG374FlEodHQ",
+          "name": "DataCenter DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        240
+      ],
+      "id": "32a5efa9-ec38-4004-a6e8-8270f6cf3725",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "09922980-1909-4ee9-9ef1-3a984732a6bd",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "=critical",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        496,
+        80
+      ],
+      "id": "ae7348b2-4411-4037-ae25-6e7da0fbd3d9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a Senior Data Center Engineer at CISCO analyzing critical infrastructure alerts.\n\nALERT DATA:\n- Device: {{ $json.device_id }}\n- Metric Type: {{ $json.metric_type }}\n- Current Value: {{ $json.metric_value }}\n- Status: {{ $json.status }}\n- Timestamp: {{ $json.timestamp }}\n\nANALYSIS REQUIRED:\n1. Root Cause Analysis (RCA): Identify if this is hardware failure, environmental issue, or capacity problem\n2. Business Impact: Estimate SLA risk (Low/Medium/High)\n3. Immediate Actions: Provide 3 specific remediation steps for the on-site engineer\n\nFORMAT: Keep response under 150 words, professional technical language."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        80
+      ],
+      "id": "73dc4d62-0d83-47c8-9f63-8f0285f4dd90",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "weKXCFvK0ncpKR9V",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "incidents",
+          "mode": "list",
+          "cachedResultName": "incidents"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "auto_resolved": false,
+            "severity": 5,
+            "device_id": "={{ $node[\"Execute a SQL query\"].json.metric_type }}",
+            "category": "={{ $node[\"Execute a SQL query\"].json.metric_type }}",
+            "description": "=Critical alert: {{ $node[\"Execute a SQL query\"].json.metric_type }} reached {{ $node[\"Execute a SQL query\"].json.metric_value }}",
+            "ai_analysis": "={{ $node[\"Message a model\"].json.output }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "device_id",
+              "displayName": "device_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "severity",
+              "displayName": "severity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ai_analysis",
+              "displayName": "ai_analysis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "recommended_actions",
+              "displayName": "recommended_actions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "resolution_time",
+              "displayName": "resolution_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "resolved_at",
+              "displayName": "resolved_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "auto_resolved",
+              "displayName": "auto_resolved",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1056,
+        80
+      ],
+      "id": "ceb32f50-8a42-48bf-9b56-beb428bd976e",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "HKabxG374FlEodHQ",
+          "name": "DataCenter DB"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Execute a SQL query": [
+      {
+        "json": {
+          "id": 11,
+          "timestamp": "2026-01-10T23:54:05.615Z",
+          "device_id": "SERVER-06",
+          "metric_type": "temperature",
+          "metric_value": "78.2",
+          "status": "critical",
+          "metadata": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": 12,
+          "timestamp": "2026-01-10T23:54:05.615Z",
+          "device_id": "SERVER-07",
+          "metric_type": "disk",
+          "metric_value": "95.0",
+          "status": "critical",
+          "metadata": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": 13,
+          "timestamp": "2026-01-10T23:54:05.615Z",
+          "device_id": "SERVER-08",
+          "metric_type": "cpu",
+          "metric_value": "98.5",
+          "status": "critical",
+          "metadata": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": 14,
+          "timestamp": "2026-01-10T23:54:05.615Z",
+          "device_id": "RACK-A07",
+          "metric_type": "temperature",
+          "metric_value": "35.5",
+          "status": "critical",
+          "metadata": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": 15,
+          "timestamp": "2026-01-10T23:54:05.615Z",
+          "device_id": "UPS-01",
+          "metric_type": "battery",
+          "metric_value": "15.0",
+          "status": "critical",
+          "metadata": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Message a model": [
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_064b69680d947065006962ea33e2dc819383e00f5dcb21b6e1",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "1. Root Cause Analysis (RCA): The critical temperature alert (78.2°C) on SERVER-06 indicates an environmental issue, likely due to insufficient cooling or airflow obstruction, rather than a hardware failure or capacity overload.\n\n2. Business Impact: High. Sustained critical temperatures jeopardize server reliability, risking unplanned downtime and potential SLA breaches, especially affecting applications dependent on SERVER-06.\n\n3. Immediate Actions: \n- Inspect and ensure that the server’s airflow paths and cooling vents are unobstructed and functional.\n- Verify data center HVAC systems and raise cooling capacity if necessary.\n- Temporarily reduce server workload or migrate critical tasks to alternate servers to mitigate overheating while investigating."
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_0de6a4e195bc017f006962ea377dd0819091631ba56a0028cf",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "1. Root Cause Analysis (RCA): The alert indicates a disk usage metric at 95%, suggesting a capacity problem rather than hardware failure or environmental issue. High disk utilization points to storage nearing full capacity.\n\n2. Business Impact: High risk to SLA, as critical disk capacity can cause application slowdowns, data write failures, or system crashes, impacting service availability and performance.\n\n3. Immediate Actions:  \n- Initiate disk cleanup by removing unnecessary files and archiving log data to free space.  \n- Review and expand storage capacity by provisioning additional disk resources or migrating data to alternate storage.  \n- Implement monitoring thresholds and alerts to proactively manage disk utilization and prevent recurrence.  \n\nPrompt resolution is essential to avoid service disruption and maintain SLA compliance."
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_0b705c82d8299e9b006962ea3b70988194ada24d6245260e19",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "1. **Root Cause Analysis (RCA):** The 98.5% CPU usage on SERVER-08 indicates a capacity problem rather than hardware failure or environmental issue. High CPU load suggests resource saturation likely due to workload spikes or inefficient processes.\n\n2. **Business Impact:** High CPU utilization at critical levels poses a **High** SLA risk, potentially degrading application performance, causing service latency or outages impacting end-user experience and SLAs.\n\n3. **Immediate Actions:**  \n- Identify and terminate any runaway or non-critical processes consuming excessive CPU.  \n- Redistribute workload by offloading processes to underutilized servers or activating failover systems.  \n- Verify server cooling and power status to rule out secondary environmental impacts and schedule a detailed performance diagnostics review."
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_08aa6e7adc0a4a5c006962ea4050388191aca5d19fe8450e02",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "1. RCA: The critical temperature alert (35.5°C) on RACK-A07 indicates an environmental issue, likely due to inadequate cooling or airflow obstructions, rather than hardware failure or capacity overload.\n\n2. Business Impact: SLA Risk is Medium. Elevated temperatures can degrade equipment performance and increase failure risk, potentially causing service interruptions if unresolved promptly.\n\n3. Immediate Actions:  \n- Verify and restore proper operation of the cooling system serving RACK-A07; check CRAC units and airflow pathways.  \n- Inspect rack ventilation for blocked vents, cabling obstructions, or dust accumulation; clear as needed.  \n- Temporarily redistribute workload or reduce power draw on RACK-A07 devices to lower heat output while remediation is underway.  \n\nContinuous temperature monitoring is critical to prevent escalation to hardware damage or wider service impact."
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_02b6d0328fe44519006962ea43ae548197904bc1d54d0112d9",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "1. Root Cause Analysis (RCA): The critical battery alarm on UPS-01 with a low current value of 15.0 indicates a likely hardware failure, specifically battery degradation or imminent failure. Environmental factors or capacity overloads are less probable, as these typically manifest differently and would trigger other metrics.\n\n2. Business Impact: High. A failing UPS battery compromises backup power availability, risking critical system downtime during power outages. This poses a significant SLA breach risk for uptime guarantees.\n\n3. Immediate Actions:\n- Conduct an on-site battery health test to confirm degradation status.\n- Arrange immediate replacement of the faulty battery to restore UPS resilience.\n- Verify UPS charging system functionality and inspect for environmental anomalies affecting battery performance (temperature, ventilation).  \n\nPrompt action is essential to prevent data center power disruption and maintain SLA compliance."
+                }
+              ],
+              "role": "assistant"
+            }
+          ]
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "437caf1d-9f3e-43af-aa79-b9492e7c3f75",
+  "meta": {
+    "instanceId": "9c2e3335efd64875405e6027c2faf4682770b6148b97ab8128f981a8a1195798"
+  },
+  "id": "Yg26ni1equEQL6etq63dV",
+  "tags": []
+}
