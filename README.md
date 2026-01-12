@@ -10,17 +10,19 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit)](https://streamlit.io)
+[![Docker](https://img.shields.io/badge/Docker-Container-2496ED?logo=docker&logoColor=white)](https://www.docker.com)
 
 **An autonomous infrastructure health-monitoring and diagnostic system powered by AI Agents and n8n.**
 
 ---
 
-## 🎯 Project Overview
+## 🚀 The Business Problem
 
-- **Situation**: Modern Data Centers generate millions of telemetry points, leading to extreme **alert fatigue**. Critical infrastructure failures were often buried under thousands of low-priority logs, delaying response times.
-- **Task**: To architect an autonomous system capable of filtering telemetry noise, performing real-time Root Cause Analysis (RCA), and dispatching actionable intelligence to on-site engineers without manual intervention.
-- **Action**: I orchestrated a multi-layered AIOps solution using **n8n** as the central engine. I integrated **PostgreSQL** for time-series data logging and leveraged **OpenAI's GPT-4o** to serve as an "AI Diagnostic Engineer," contextually analyzing alerts and generating step-by-step remediation plans.
-- **Result**: Developed a production-ready framework that reduces initial diagnostic time from minutes to **seconds**, providing high-fidelity incident reports and ensuring that critical failures (High Severity 4-5) are escalated with 100% automated RCA coverage.
+- **Situation**: Modern Data Centers generate millions of telemetry points, leading to extreme **alert fatigue**. Critical infrastructure failures were often buried under thousands of low-priority logs, delaying response times and increasing operational risks.
+- **Task**: To architect an autonomous system capable of filtering telemetry noise, performing real-time Root Cause Analysis (RCA), and dispatching actionable intelligence to on-site engineers—all while ensuring the environment is portable and scalable.
+- **Action**: I orchestrated a multi-layered AIOps solution containerized with **Docker** for seamless deployment. I used **n8n** as the central engine, integrated **PostgreSQL** for time-series data, and leveraged **OpenAI's GPT-4o** to serve as an "AI Diagnostic Engineer" that contextually analyzes alerts and generates remediation plans.
+- **Result**: Developed a production-ready framework that reduces initial diagnostic time from minutes to **seconds**, providing high-fidelity incident reports with 100% automated RCA coverage for critical failures.
+
 
 
 ---
@@ -73,10 +75,12 @@ Once an incident is analyzed, this workflow ensures the right people know immedi
 
 ## 🛠️ Technology Stack
 - **Orchestration**: [n8n](https://n8n.io/) (Low-code workflow automation)
+- **Infrastructure**: [Docker](https://www.docker.com/) (Containerization for portable deployment)
 - **Artificial Intelligence**: [OpenAI GPT-4o](https://openai.com/) (LLMs for RCA)
 - **Database**: [PostgreSQL](https://www.postgresql.org/) (Structured incident logging)
 - **Frontend**: [Streamlit](https://streamlit.io/) (Real-time monitoring UI)
 - **Scripting**: Python 3.11 & JavaScript (Node.js)
+
 
 ---
 
