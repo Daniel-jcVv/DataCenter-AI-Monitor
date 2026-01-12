@@ -15,10 +15,7 @@
 
 ---
 
-## 🎬 Live System Demo
-<p align="center">
-  <video src="https://github.com/Daniel-jcVv/DataCenter-AI-Monitor/raw/main/docs/dashboard_demo.mp4" width="100%" controls autoplay loop muted></video>
-</p>
+![AIOps Dashboard Demo](docs/dashboard_demo.gif)
 
 ---
 
