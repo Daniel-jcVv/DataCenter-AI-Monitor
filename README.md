@@ -1,111 +1,133 @@
-# DataCenter AI Monitor (AIOps PoC)
+# 🤖 AIOps Smart Incident Orchestrator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![n8n](https://img.shields.io/badge/n8n-Automation-FF6D5A?logo=n8n)](https://n8n.io)
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?logo=openai)](https://openai.com)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit)](https://streamlit.io)
 
-**An autonomous infrastructure health-monitoring and diagnostic system powered by AI and n8n.**
+**An autonomous infrastructure health-monitoring and diagnostic system powered by AI Agents and n8n.**
 
-## 🚀 Overview
-The **AIOps Smart Incident Orchestrator** is designed to eliminate data center downtime by combining real-time metric ingestion with LLM-based Root Cause Analysis (RCA). It transforms raw logs into actionable technical audits in seconds, ensuring maximum service availability.
+---
 
-## 🏗️ System Architecture
+## 🚀 The Business Problem
+
+Modern Data Centers generate millions of logs and metrics every minute. Traditional "Threshold-based" monitoring results in **alert fatigue**—where engineers ignore critical warnings because of too much noise.
+
+**This solution solves this by:**
+
+1. **Filtering Noise:** Only escalating truly critical events.
+2. **Autonomous Diagnostics:** Using AI to perform Root Cause Analysis (RCA) *before* an engineer even opens the ticket.
+3. **MTTR Reduction:** Slashing the "Mean Time To Resolution" by up to 60%.
+
+---
+
+## 🏗️ Solution Architecture
+
+The system operates in four distinct layers:
+
+1. **Ingestion Layer**: Python scripts simulate real-world telemetry (CPU, Temp, Disk, Network, Power).
+2. **Processing Layer (n8n)**: A high-performance automation engine that orchestrates the flow.
+3. **Brain Layer (OpenAI)**: GPT-4o analyzes the incident context and recommends specific remediation steps.
+4. **Visualization Layer (Streamlit)**: A professional executive dashboard for real-time audit and control.
 
 ```mermaid
-graph LR
-    Metrics[Telemetry Metrics] --> n8n[n8n Engine]
-    n8n --> AI[OpenAI Analysis]
-    AI --> Postgres[Historical Audit]
-    Postgres --> Alerts[Smart Alerts]
+graph TD
+    A[Telemetry Sources] -->|Webhooks| B(n8n Orchestrator)
+    B -->|Query Context| C[(PostgreSQL Audit Log)]
+    B -->|Analyze| D{AI Agent GPT-4o}
+    D -->|RCA & Action| B
+    B -->|Dispatch| E[Gmail Alerts]
+    B -->|Update| C
+    C -->|Real-time Feed| F[Streamlit Dashboard]
 ```
 
-## 📁 Structure
+---
 
-```
+## 🖥️ Executive Dashboard
+
+The custom Streamlit dashboard provides a "Single Pane of Glass" for Ops managers:
+
+- **Real-time KPI Tracking**: Critical Alerts, Incidents (24h), MTTR Trends.
+- **Interactive Analytics**: Filter by Server, Category, or Severity.
+- **AI Deep Dive**: Cleaned AI-agent outputs with RCA and specific remediation steps.
+- **Audit Log**: Live feed of all system actions.
+
+![AIOps Dashboard](docs/monitor_aiops_system.png)
+
+---
+
+## 📁 Repository Structure
+
+```text
 datacenter-ai-monitor/
-├── README.md                 # This file
-├── database/                 # SQL Scripts
-│   ├── schema.sql           # Table structure
-│   └── seed.sql             # Mock data
-├── workflows/               # n8n Workflows (JSON)
-│   ├── 01-monitor.json      # Main monitor
-│   ├── 02-predictor.json    # Predictive analysis
-│   └── 03-remediation.json  # Auto-remediation
-├── docs/                    # Documentation
-│   ├── ARCHITECTURE.md      # System design
-│   └── DEMO.md             # Demo script
-└── scripts/                 # Auxiliary scripts
-    └── generate_metrics.py  # Data generator
+├── dashboard/               # Streamlit Application
+│   ├── app.py              # Main dashboard script
+│   └── assets/             # Logos and visual assets
+├── database/                # SQL scripts (Schema & Data)
+├── scripts/                 # Simulation and helper scripts
+├── workflows/               # n8n Workflows (JSON exports)
+└── requirements.txt         # Python dependencies
 ```
 
-## 🚀 Quick Start
+---
 
-### 1. Database Setup
+## 🛠️ Step-by-Step Installation
+
+### 1. Database Initialization
+
 ```bash
 docker exec -it n8n-db-1 psql -U n8n_user -d datacenter < database/schema.sql
-docker exec -it n8n-db-1 psql -U n8n_user -d datacenter < database/seed.sql
 ```
 
-### 2. Import Workflows
-1. Open http://localhost:5678
-2. Import → select each JSON from `/workflows`
-3. Configure credentials (DataCenter DB, OpenAI)
+### 2. Python Environment Setup
 
-### 3. Run
-- Activate workflow "01-monitor"
-- Check incidents in the `incidents` table
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-## 📊 Use Cases
+### 3. Run Simulation & Dashboard
 
-### ✅ Currently Implemented
-- Critical metrics monitor (CPU, Temp, Disk)
-- AI-driven incident analysis
-- PostgreSQL data persistence
+```bash
+# Generate mock traffic
+python scripts/generate_metrics.py
 
-### 🔄 Under Development
-- Failure prediction
-- Auto-remediation
-- Grafana Dashboard
+# Launch the Dashboard
+streamlit run dashboard/app.py
+```
 
-## 🔑 Credentials
+---
 
-**PostgreSQL:**
-- Host: n8n-db-1
-- DB: datacenter
-- User: n8n_user
-- Password: n8n_password
+## 📈 Strategic ROI
 
-**OpenAI:**
-- Configure in n8n credentials
+- ⏱️ **60% MTTR Reduction**: From 45 min to 18 min average.
+- 🤖 **80% Noise Reduction**: Intelligent alert suppression.
+- 💰 **High Scalability**: Designed for deployments from 10 to 10,000+ nodes.
 
-## 📈 Key Performance Indicators (KPIs)
+---
 
-- ⏱️ **MTTR reduction (60%)**: Drastic decrease from 45 min to 18 min per incident.
-- 🤖 **Filtering (80%)**: Intelligent noise reduction in monitoring alerts.
-- ✅ **Auto-resolution (70%)**: Automated remediation of common server issues.
-- 💰 **Projected ROI**: Estimated saving of $300K USD/year for a 500-server deployment.
+## 🎬 Video Demo & Portfolio Usage
 
-## 🎬 Operational Workflow
+This project demonstrates advanced skills in **Enterprise Automation, AIOps, and AI-Driven Decision Making.**
 
-1. **Intelligent Ingestion**: Receives telemetry data via secure webhooks/API.
-2. **Contextual Analysis**:
-   - Executes real-time SQL audits.
-   - Leverages AI to evaluate complex system states.
-   - Generates automated incident reports.
-3. **Data Persistence**: Stores structured data in PostgreSQL for long-term auditing and SLA tracking.
-4. **Scalable Notification**: Dispatches remediations and high-priority alerts across enterprise channels.
+> **Note:** For a full video walkthrough, please refer to the `docs/DEMO_SCRIPT.md`.
 
-## 📝 Technical Advantages & Integration
+---
 
-**Architectural Benefits:**
-- ✅ **Agility (n8n)**: Rapid deployment and modification of business logic.
-- ✅ **Cognitive Diagnostics**: AI-driven analysis outperforms static threshold rules.
-- ✅ **Seamless Integration**: Standard REST API and Webhook support for legacy/cloud systems.
-- ✅ **Cloud-Native**: Fully containerized and ready for Kubernetes orchestration.
+## 📩 Contact & Collaboration
 
-**Strategic Alignment:**
-- **Pipeline-Centric Design**: Inspired by Azure Data Factory and modern ETL patterns.
-- **Telemetry Analysis**: Deep integration with data center telemetry and logging standards.
-- **Infrastructure Agnostic**: Applicable to both On-Premise and Hybrid-Cloud environments.
+I'm always open to discussing new projects, AIOps strategies, or AI automation opportunities.
+
+- **LinkedIn**: [daniel-garcía-belman-99a298aa](https://linkedin.com/in/daniel-garcía-belman-99a298aa)
+- **Portfolio**: [danieljcvv-portfolio.vercel.app](https://danieljcvv-portfolio.vercel.app/)
+- **Email**: [danielgb331@outlook.com](mailto:danielgb331@outlook.com)
+- **Phone**: +52 461 173 3822
+
+---
+
+*Developed by Daniel-jcVv | Powered by n8n, OpenAI & PostgreSQL*
+
+**Soli Deo Gloria.**

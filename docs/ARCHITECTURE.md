@@ -67,7 +67,7 @@ Schedule (5 min)
   → IF (¿Hay incidentes?)
   → OpenAI (Analizar contexto)
   → PostgreSQL (Guardar incidente + análisis)
-  → Slack (Notificar equipo)
+  → Gmail (Notificar equipo)
 ```
 
 **Workflow 02: Predictor**
