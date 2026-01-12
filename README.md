@@ -7,6 +7,10 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit)](https://streamlit.io)
 
+<p align="center">
+  <img src="docs/portfolio_hero.png" width="100%" alt="AIOps Project Cover">
+</p>
+
 **An autonomous infrastructure health-monitoring and diagnostic system powered by AI Agents and n8n.**
 
 ---
@@ -54,7 +58,15 @@ The custom Streamlit dashboard provides a "Single Pane of Glass" for Ops manager
 - **AI Deep Dive**: Cleaned AI-agent outputs with RCA and specific remediation steps.
 - **Audit Log**: Live feed of all system actions.
 
-![AIOps Dashboard](docs/monitor_aiops_system.png)
+<p align="center">
+  <img src="docs/monitor_aiops_system.png" width="100%" alt="Dashboard Preview">
+</p>
+
+### 🎬 Live Action Demo
+
+<p align="center">
+  <img src="docs/dashboard_demo.gif" width="100%" alt="Dashboard Animation">
+</p>
 
 ---
 
