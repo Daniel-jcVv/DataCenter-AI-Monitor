@@ -1,5 +1,5 @@
 -- DataCenter AI Monitor - Database Schema
--- Tabla principal de métricas
+-- Main metrics table
 CREATE TABLE IF NOT EXISTS infrastructure_metrics (
     id SERIAL PRIMARY KEY,
     timestamp TIMESTAMPTZ DEFAULT NOW(),
@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS infrastructure_metrics (
     status VARCHAR(20) CHECK (status IN ('normal', 'warning', 'critical')),
     metadata JSONB
 );
--- Índices para infrastructure_metrics
+-- Indexes for infrastructure_metrics
 CREATE INDEX IF NOT EXISTS idx_device_status ON infrastructure_metrics(device_id, status);
 CREATE INDEX IF NOT EXISTS idx_timestamp ON infrastructure_metrics(timestamp DESC);
--- Tabla de incidentes
+-- Incidents table
 CREATE TABLE IF NOT EXISTS incidents (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -31,11 +31,11 @@ CREATE TABLE IF NOT EXISTS incidents (
     resolved_at TIMESTAMPTZ,
     auto_resolved BOOLEAN DEFAULT false
 );
--- Índices para incidents
+-- Indexes for incidents
 CREATE INDEX IF NOT EXISTS idx_status ON incidents(status);
 CREATE INDEX IF NOT EXISTS idx_device ON incidents(device_id);
 CREATE INDEX IF NOT EXISTS idx_created ON incidents(created_at DESC);
--- Tabla de predicciones
+-- Predictions table
 CREATE TABLE IF NOT EXISTS predictions (
     id SERIAL PRIMARY KEY,
     prediction_date TIMESTAMPTZ DEFAULT NOW(),
@@ -46,10 +46,10 @@ CREATE TABLE IF NOT EXISTS predictions (
     confidence_score DECIMAL(3, 2),
     recommended_actions TEXT []
 );
--- Índices para predictions
+-- Indexes for predictions
 CREATE INDEX IF NOT EXISTS idx_device_pred ON predictions(device_id);
 CREATE INDEX IF NOT EXISTS idx_probability ON predictions(probability DESC);
--- Tabla de acciones automatizadas
+-- Automated actions table
 CREATE TABLE IF NOT EXISTS automated_actions (
     id SERIAL PRIMARY KEY,
     executed_at TIMESTAMPTZ DEFAULT NOW(),
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS automated_actions (
     success BOOLEAN,
     error_message TEXT
 );
--- Vista analítica para dashboard
+-- Analytical view for dashboard
 CREATE OR REPLACE VIEW incident_analytics AS
 SELECT DATE_TRUNC('hour', created_at) as hour,
     category,
@@ -79,6 +79,6 @@ WHERE created_at > NOW() - INTERVAL '7 days'
 GROUP BY hour,
     category
 ORDER BY hour DESC;
-COMMENT ON TABLE infrastructure_metrics IS 'Métricas en tiempo real de infraestructura del datacenter';
-COMMENT ON TABLE incidents IS 'Incidentes detectados y su análisis con IA';
-COMMENT ON TABLE predictions IS 'Predicciones de fallos basadas en tendencias';
+COMMENT ON TABLE infrastructure_metrics IS 'Real-time datacenter infrastructure metrics';
+COMMENT ON TABLE incidents IS 'Detected incidents and their AI analysis';
+COMMENT ON TABLE predictions IS 'Failure predictions based on trends';

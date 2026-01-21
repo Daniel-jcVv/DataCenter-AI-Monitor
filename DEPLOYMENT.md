@@ -1,63 +1,64 @@
-# 🚀 Guía de Despliegue Local - DataCenter AI Monitor
+# 🚀 Local Deployment Guide - DataCenter AI Monitor
 
-Esta guía te ayudará a desplegar el proyecto completo en tu máquina local usando Docker.
-
----
-
-## 📋 Prerrequisitos
-
-Antes de comenzar, asegúrate de tener instalado:
-
-- ✅ **Docker** (versión 20.10 o superior)
-- ✅ **Docker Compose** (versión 2.0 o superior)
-- ✅ **OpenAI API Key** (para el análisis con IA)
+This guide will help you deploy the complete project on your local machine using Docker.
 
 ---
 
-## 🔧 Paso 1: Configurar Variables de Entorno
+## 📋 Prerequisites
 
-1. Abre el archivo `.env` en la raíz del proyecto
-2. Reemplaza los siguientes valores:
+Before starting, make sure you have installed:
+
+- ✅ **Docker** (version 20.10 or higher)
+- ✅ **Docker Compose** (version 2.0 or higher)
+- ✅ **OpenAI API Key** (for AI analysis)
+
+---
+
+## 🔧 Step 1: Configure Environment Variables
+
+1. Open the `.env` file in the project root
+2. Replace the following values:
 
 ```bash
-# OpenAI API Key (OBLIGATORIO)
+# OpenAI API Key (REQUIRED)
 OPENAI_API_KEY=sk-your-actual-openai-api-key-here
 
-# Email para alertas (OPCIONAL - solo si usas el workflow de Gmail)
-EMAIL_USER=tu-email@gmail.com
-EMAIL_PASSWORD=tu-app-password-aqui
+# Email for alerts (OPTIONAL - only if using Gmail workflow)
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password-here
 ```
 
-> **Nota**: Para obtener tu OpenAI API Key, visita: https://platform.openai.com/api-keys
+> **Note**: To get your OpenAI API Key, visit: <https://platform.openai.com/api-keys>
 
 ---
 
-## 🐳 Paso 2: Levantar los Contenedores
+## 🐳 Step 2: Start the Containers
 
-Ejecuta el siguiente comando en la raíz del proyecto:
+Run the following command in the project root:
 
 ```bash
 docker-compose up -d
 ```
 
-Este comando iniciará 3 servicios:
-- **PostgreSQL** (puerto 5432) - Base de datos
-- **n8n** (puerto 5678) - Plataforma de automatización
-- **Streamlit Dashboard** (puerto 8501) - Dashboard ejecutivo
+This command will start 3 services:
+
+- **PostgreSQL** (port 5432) - Database
+- **n8n** (port 5678) - Automation platform
+- **Streamlit Dashboard** (port 8501) - Executive dashboard
 
 ---
 
-## ⏳ Paso 3: Verificar que los Servicios Estén Corriendo
+## ⏳ Step 3: Verify Services are Running
 
-Espera 30-60 segundos y verifica el estado:
+Wait 30-60 seconds and check the status:
 
 ```bash
 docker-compose ps
 ```
 
-Deberías ver algo como:
+You should see something like:
 
-```
+```text
 NAME                    STATUS              PORTS
 datacenter-postgres     Up (healthy)        0.0.0.0:5432->5432/tcp
 datacenter-n8n          Up                  0.0.0.0:5678->5678/tcp
@@ -66,47 +67,47 @@ datacenter-dashboard    Up                  0.0.0.0:8501->8501/tcp
 
 ---
 
-## 🔑 Paso 4: Acceder a n8n
+## 🔑 Step 4: Access n8n
 
-1. Abre tu navegador en: **http://localhost:5678**
-2. Ingresa las credenciales:
-   - **Usuario**: `admin`
-   - **Contraseña**: `admin123`
-
----
-
-## 📊 Paso 5: Importar los Workflows
-
-### Opción A: Importar desde la interfaz de n8n
-
-1. En n8n, haz clic en el botón **"+"** (arriba a la derecha)
-2. Selecciona **"Import from File"**
-3. Navega a la carpeta `workflows/` del proyecto
-4. Importa los siguientes archivos:
-   - `01-monitor.json` (Workflow principal de monitoreo)
-   - `02-Gmail-Alert-Dispatcher.json` (Dispatcher de alertas - opcional)
-
-### Opción B: Copiar workflows automáticamente (Recomendado)
-
-Los workflows ya están montados en el contenedor. Solo necesitas:
-
-1. Ir a n8n: http://localhost:5678
-2. Crear un nuevo workflow
-3. Hacer clic en el menú (⋮) → **"Import from File"**
-4. Seleccionar `/workflows/01-monitor.json`
+1. Open your browser at: **<http://localhost:5678>**
+2. Enter credentials:
+   - **User**: `admin`
+   - **Password**: `admin123`
 
 ---
 
-## 🔌 Paso 6: Configurar Credenciales en n8n
+## 📊 Step 5: Import Workflows
 
-### 6.1 Configurar PostgreSQL
+### Option A: Import from n8n interface
 
-1. En n8n, ve a **Settings** → **Credentials**
-2. Haz clic en **"+ Add Credential"**
-3. Busca y selecciona **"Postgres"**
-4. Ingresa los siguientes datos:
+1. In n8n, click the **"+"** button (top right)
+2. Select **"Import from File"**
+3. Navigate to the project's `workflows/` folder
+4. Import the following files:
+   - `01-monitor.json` (Main monitoring workflow)
+   - `02-Gmail-Alert-Dispatcher.json` (Alert dispatcher - optional)
 
-```
+### Option B: Copy workflows automatically (Recommended)
+
+The workflows are already mounted in the container. You just need to:
+
+1. Go to n8n: <http://localhost:5678>
+2. Create a new workflow
+3. Click the menu (⋮) → **"Import from File"**
+4. Select `/workflows/01-monitor.json`
+
+---
+
+## 🔌 Step 6: Configure Credentials in n8n
+
+### 6.1 Configure PostgreSQL
+
+1. In n8n, go to **Settings** → **Credentials**
+2. Click **"+ Add Credential"**
+3. Search and select **"Postgres"**
+4. Enter the following data:
+
+```text
 Name: DataCenter DB
 Host: postgres
 Database: datacenter_db
@@ -116,154 +117,171 @@ Port: 5432
 SSL: Disable
 ```
 
-5. Haz clic en **"Save"**
+5. Click **"Save"**
 
-### 6.2 Configurar OpenAI
+### 6.2 Configure OpenAI
 
-1. En n8n, ve a **Settings** → **Credentials**
-2. Haz clic en **"+ Add Credential"**
-3. Busca y selecciona **"OpenAI"**
-4. Ingresa tu API Key de OpenAI
-5. Haz clic en **"Save"**
-
----
-
-## ✅ Paso 7: Probar el Workflow
-
-1. Abre el workflow **"DataCenter Monitor"**
-2. Haz clic en el botón **"Execute Workflow"** (arriba a la derecha)
-3. Deberías ver:
-   - ✅ Consulta a PostgreSQL ejecutada
-   - ✅ Filtrado de alertas críticas
-   - ✅ Análisis de IA generado
-   - ✅ Incidentes insertados en la base de datos
+1. In n8n, go to **Settings** → **Credentials**
+2. Click **"+ Add Credential"**
+3. Search and select **"OpenAI"**
+4. Enter your OpenAI API Key
+5. Click **"Save"**
 
 ---
 
-## 📈 Paso 8: Acceder al Dashboard
+## ✅ Step 7: Test the Workflow
 
-1. Abre tu navegador en: **http://localhost:8501**
-2. Verás el dashboard ejecutivo con:
-   - Métricas en tiempo real
-   - Incidentes críticos
-   - Análisis de tendencias
-
----
-
-## 🔄 Paso 9: Activar el Monitoreo Automático
-
-Para que el workflow se ejecute automáticamente cada 5 minutos:
-
-1. En n8n, abre el workflow **"DataCenter Monitor"**
-2. Haz clic en el botón **"Active"** (toggle en la esquina superior derecha)
-3. El workflow ahora se ejecutará automáticamente según el Schedule Trigger
+1. Open the **"DataCenter Monitor"** workflow
+2. Click the **"Execute Workflow"** button (top right)
+3. You should see:
+   - ✅ PostgreSQL query executed
+   - ✅ Critical alerts filtered
+   - ✅ AI analysis generated
+   - ✅ Incidents inserted into database
 
 ---
 
-## 🛠️ Comandos Útiles
+## 📈 Step 8: Access the Dashboard
 
-### Ver logs de los contenedores
+1. Open your browser at: **<http://localhost:8501>**
+2. You'll see the executive dashboard with:
+   - Real-time metrics
+   - Critical incidents
+   - Trend analysis
+
+---
+
+## 🔄 Step 9: Activate Automatic Monitoring
+
+To have the workflow run automatically every 5 minutes:
+
+1. In n8n, open the **"DataCenter Monitor"** workflow
+2. Click the **"Active"** button (toggle in top right corner)
+3. The workflow will now run automatically according to the Schedule Trigger
+
+---
+
+## 🛠️ Useful Commands
+
+### View container logs
+
 ```bash
-# Todos los servicios
+# All services
 docker-compose logs -f
 
-# Solo n8n
+# Only n8n
 docker-compose logs -f n8n
 
-# Solo PostgreSQL
+# Only PostgreSQL
 docker-compose logs -f postgres
 
-# Solo Dashboard
+# Only Dashboard
 docker-compose logs -f dashboard
 ```
 
-### Reiniciar servicios
+### Restart services
+
 ```bash
-# Reiniciar todo
+# Restart all
 docker-compose restart
 
-# Reiniciar solo n8n
+# Restart only n8n
 docker-compose restart n8n
 ```
 
-### Detener servicios
+### Stop services
+
 ```bash
 docker-compose down
 ```
 
-### Detener y eliminar volúmenes (⚠️ CUIDADO: Borra todos los datos)
+### Stop and remove volumes (⚠️ WARNING: Deletes all data)
+
 ```bash
 docker-compose down -v
 ```
 
-### Acceder a la base de datos directamente
+### Access database directly
+
 ```bash
 docker exec -it datacenter-postgres psql -U datacenter_user -d datacenter_db
 ```
 
 ---
 
-## 🐛 Solución de Problemas
+## 🐛 Troubleshooting
 
-### Problema: "Port 5432 already in use"
-**Solución**: Ya tienes PostgreSQL corriendo localmente. Opciones:
-1. Detén tu PostgreSQL local: `sudo systemctl stop postgresql`
-2. Cambia el puerto en `docker-compose.yml`: `"5433:5432"`
+### Problem: "Port 5432 already in use"
 
-### Problema: "Port 5678 already in use"
-**Solución**: Ya tienes n8n corriendo. Opciones:
-1. Detén n8n local
-2. Cambia el puerto en `docker-compose.yml`: `"5679:5678"`
+**Solution**: You already have PostgreSQL running locally. Options:
 
-### Problema: "Cannot connect to database"
-**Solución**:
-1. Verifica que PostgreSQL esté healthy: `docker-compose ps`
-2. Revisa los logs: `docker-compose logs postgres`
-3. Reinicia los servicios: `docker-compose restart`
+1. Stop your local PostgreSQL: `sudo systemctl stop postgresql`
+2. Change port in `docker-compose.yml`: `"5433:5432"`
 
-### Problema: "OpenAI API error"
-**Solución**:
-1. Verifica que tu API Key sea válida
-2. Asegúrate de tener créditos en tu cuenta de OpenAI
-3. Revisa que la credencial en n8n esté configurada correctamente
+### Problem: "Port 5678 already in use"
+
+**Solution**: You already have n8n running. Options:
+
+1. Stop local n8n
+2. Change port in `docker-compose.yml`: `"5679:5678"`
+
+### Problem: "Cannot connect to database"
+
+**Solution**:
+
+1. Verify PostgreSQL is healthy: `docker-compose ps`
+2. Check logs: `docker-compose logs postgres`
+3. Restart services: `docker-compose restart`
+
+### Problem: "OpenAI API error"
+
+**Solution**:
+
+1. Verify your API Key is valid
+2. Make sure you have credits in your OpenAI account
+3. Check that the credential in n8n is configured correctly
 
 ---
 
-## 📊 Verificar que Todo Funciona
+## 📊 Verify Everything Works
 
-### 1. Base de Datos
+### 1. Database
+
 ```bash
 docker exec -it datacenter-postgres psql -U datacenter_user -d datacenter_db -c "SELECT COUNT(*) FROM infrastructure_metrics;"
 ```
 
-Deberías ver al menos 15 registros (datos de prueba).
+You should see at least 15 records (test data).
 
 ### 2. n8n
-Visita: http://localhost:5678 - Deberías ver la interfaz de login.
+
+Visit: <http://localhost:5678> - You should see the login interface.
 
 ### 3. Dashboard
-Visita: http://localhost:8501 - Deberías ver el dashboard con gráficas.
+
+Visit: <http://localhost:8501> - You should see the dashboard with charts.
 
 ---
 
-## 🎯 Próximos Pasos
+## 🎯 Next Steps
 
-1. **Personalizar el Workflow**: Ajusta los umbrales de alertas según tus necesidades
-2. **Configurar Alertas por Email**: Importa el workflow `02-Gmail-Alert-Dispatcher.json`
-3. **Agregar Más Métricas**: Ejecuta el script `scripts/generate_metrics.py` para generar datos sintéticos
-4. **Explorar el Dashboard**: Analiza las tendencias y patrones de incidentes
-
----
-
-## 📞 Soporte
-
-Si encuentras algún problema:
-1. Revisa los logs: `docker-compose logs -f`
-2. Verifica que todos los servicios estén corriendo: `docker-compose ps`
-3. Consulta la documentación oficial de n8n: https://docs.n8n.io
+1. **Customize the Workflow**: Adjust alert thresholds according to your needs
+2. **Configure Email Alerts**: Import the `02-Gmail-Alert-Dispatcher.json` workflow
+3. **Add More Metrics**: Run the `scripts/generate_metrics.py` script to generate synthetic data
+4. **Explore the Dashboard**: Analyze trends and incident patterns
 
 ---
 
-**¡Listo! Tu sistema AIOps está corriendo localmente. 🎉**
+## 📞 Support
 
-*Desarrollado por Daniel-jcVv | Powered by n8n, OpenAI & PostgreSQL*
+If you encounter any problems:
+
+1. Check logs: `docker-compose logs -f`
+2. Verify all services are running: `docker-compose ps`
+3. Consult official n8n documentation: <https://docs.n8n.io>
+
+---
+
+**Ready! Your AIOps system is running locally. 🎉**
+
+*Developed by Daniel-jcVv | Powered by n8n, OpenAI & PostgreSQL*

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Database Management Script
-# Script para gestionar la base de datos PostgreSQL
+# Script to manage PostgreSQL database
 
 set -e
 
@@ -14,33 +14,33 @@ DB_CONTAINER="datacenter-postgres"
 DB_USER="datacenter_user"
 DB_NAME="datacenter_db"
 
-# Función para mostrar el menú
+# Function to show menu
 show_menu() {
     echo ""
-    echo "DataCenter AI Monitor - Gestión de Base de Datos"
+    echo "DataCenter AI Monitor - Database Management"
     echo "=================================================="
     echo ""
-    echo "1) Conectar a PostgreSQL (psql)"
-    echo "2) Ver métricas de infraestructura"
-    echo "3) Ver incidentes"
-    echo "4) Ver predicciones"
-    echo "5) Reiniciar base de datos (ADVERTENCIA: Borra todos los datos)"
-    echo "6) Generar datos de prueba adicionales"
-    echo "7) Exportar base de datos (backup)"
-    echo "8) Ver estadísticas"
-    echo "9) Salir"
+    echo "1) Connect to PostgreSQL (psql)"
+    echo "2) View infrastructure metrics"
+    echo "3) View incidents"
+    echo "4) View predictions"
+    echo "5) Reset database (WARNING: Deletes all data)"
+    echo "6) Generate additional test data"
+    echo "7) Export database (backup)"
+    echo "8) View statistics"
+    echo "9) Exit"
     echo ""
 }
 
-# Función para conectar a psql
+# Function to connect to psql
 connect_psql() {
-    echo -e "${GREEN}[INFO] Conectando a PostgreSQL...${NC}"
+    echo -e "${GREEN}[INFO] Connecting to PostgreSQL...${NC}"
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME
 }
 
-# Función para ver métricas
+# Function to view metrics
 view_metrics() {
-    echo -e "${GREEN}Métricas de Infraestructura (últimas 20):${NC}"
+    echo -e "${GREEN}Infrastructure Metrics (last 20):${NC}"
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "
         SELECT id, timestamp, device_id, metric_type, metric_value, status 
         FROM infrastructure_metrics 
@@ -49,9 +49,9 @@ view_metrics() {
     "
 }
 
-# Función para ver incidentes
+# Function to view incidents
 view_incidents() {
-    echo -e "${GREEN}Incidentes (últimos 10):${NC}"
+    echo -e "${GREEN}Incidents (last 10):${NC}"
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "
         SELECT id, created_at, device_id, severity, category, status, auto_resolved 
         FROM incidents 
@@ -60,24 +60,24 @@ view_incidents() {
     "
 }
 
-# Función para ver predicciones
+# Function to view predictions
 view_predictions() {
-    echo -e "${GREEN}Predicciones de Fallos:${NC}"
+    echo -e "${GREEN}Failure Predictions:${NC}"
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "
         SELECT * FROM predictions 
         ORDER BY probability DESC;
     "
 }
 
-# Función para reiniciar la base de datos
+# Function to reset database
 reset_database() {
-    echo -e "${RED}[WARN] ADVERTENCIA: Esto borrará TODOS los datos${NC}"
-    read -p "¿Estás seguro? Escribe 'SI' para confirmar: " confirm
+    echo -e "${RED}[WARN] WARNING: This will delete ALL data${NC}"
+    read -p "Are you sure? Type 'YES' to confirm: " confirm
     
-    if [ "$confirm" = "SI" ]; then
-        echo -e "${YELLOW}[INFO] Reiniciando base de datos...${NC}"
+    if [ "$confirm" = "YES" ]; then
+        echo -e "${YELLOW}[INFO] Resetting database...${NC}"
         
-        # Eliminar y recrear las tablas
+        # Drop and recreate tables
         docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "
             DROP TABLE IF EXISTS automated_actions CASCADE;
             DROP TABLE IF EXISTS predictions CASCADE;
@@ -86,59 +86,59 @@ reset_database() {
             DROP VIEW IF EXISTS incident_analytics CASCADE;
         "
         
-        # Recrear el esquema
+        # Recreate schema
         docker exec -i $DB_CONTAINER psql -U $DB_USER -d $DB_NAME < database/schema.sql
         
-        # Insertar datos de prueba
+        # Insert test data
         docker exec -i $DB_CONTAINER psql -U $DB_USER -d $DB_NAME < database/seed.sql
         
-        echo -e "${GREEN}[OK] Base de datos reiniciada exitosamente${NC}"
+        echo -e "${GREEN}[OK] Database reset successfully${NC}"
     else
-        echo "Operación cancelada"
+        echo "Operation cancelled"
     fi
 }
 
-# Función para generar datos adicionales
+# Function to generate additional data
 generate_data() {
-    echo -e "${GREEN}[INFO] Generando datos de prueba adicionales...${NC}"
+    echo -e "${GREEN}[INFO] Generating additional test data...${NC}"
     
     if [ -f "scripts/generate_metrics.py" ]; then
         python3 scripts/generate_metrics.py
-        echo -e "${GREEN}[OK] Datos generados exitosamente${NC}"
+        echo -e "${GREEN}[OK] Data generated successfully${NC}"
     else
-        echo -e "${RED}[ERROR] Script generate_metrics.py no encontrado${NC}"
+        echo -e "${RED}[ERROR] Script generate_metrics.py not found${NC}"
     fi
 }
 
-# Función para exportar base de datos
+# Function to export database
 export_database() {
     BACKUP_FILE="backup_$(date +%Y%m%d_%H%M%S).sql"
-    echo -e "${GREEN}[INFO] Exportando base de datos a: $BACKUP_FILE${NC}"
+    echo -e "${GREEN}[INFO] Exporting database to: $BACKUP_FILE${NC}"
     
     docker exec $DB_CONTAINER pg_dump -U $DB_USER $DB_NAME > $BACKUP_FILE
     
-    echo -e "${GREEN}[OK] Backup creado: $BACKUP_FILE${NC}"
+    echo -e "${GREEN}[OK] Backup created: $BACKUP_FILE${NC}"
 }
 
-# Función para ver estadísticas
+# Function to view statistics
 view_stats() {
-    echo -e "${GREEN}Estadísticas de la Base de Datos:${NC}"
+    echo -e "${GREEN}Database Statistics:${NC}"
     echo ""
     
-    echo "Conteo de Registros:"
+    echo "Record Count:"
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "
         SELECT 
-            'Métricas' as tabla, COUNT(*) as total FROM infrastructure_metrics
+            'Metrics' as table_name, COUNT(*) as total FROM infrastructure_metrics
         UNION ALL
-        SELECT 'Incidentes', COUNT(*) FROM incidents
+        SELECT 'Incidents', COUNT(*) FROM incidents
         UNION ALL
-        SELECT 'Predicciones', COUNT(*) FROM predictions
+        SELECT 'Predictions', COUNT(*) FROM predictions
         UNION ALL
-        SELECT 'Acciones Automatizadas', COUNT(*) FROM automated_actions;
+        SELECT 'Automated Actions', COUNT(*) FROM automated_actions;
     "
     
     echo ""
-    echo "Distribución de Estados:"
+    echo "Status Distribution:"
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "
         SELECT status, COUNT(*) as total 
         FROM infrastructure_metrics 
@@ -147,7 +147,7 @@ view_stats() {
     "
     
     echo ""
-    echo "Incidentes por Severidad:"
+    echo "Incidents by Severity:"
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "
         SELECT severity, COUNT(*) as total 
         FROM incidents 
@@ -156,17 +156,17 @@ view_stats() {
     "
 }
 
-# Verificar que el contenedor esté corriendo
+# Check if container is running
 if ! docker ps | grep -q $DB_CONTAINER; then
-    echo -e "${RED}[ERROR] El contenedor de PostgreSQL no está corriendo${NC}"
-    echo "Inicia los servicios con: docker-compose up -d"
+    echo -e "${RED}[ERROR] PostgreSQL container is not running${NC}"
+    echo "Start services with: docker-compose up -d"
     exit 1
 fi
 
-# Menú principal
+# Main menu
 while true; do
     show_menu
-    read -p "Selecciona una opción: " choice
+    read -p "Select an option: " choice
     
     case $choice in
         1) connect_psql ;;
@@ -177,10 +177,10 @@ while true; do
         6) generate_data ;;
         7) export_database ;;
         8) view_stats ;;
-        9) echo "Hasta luego"; exit 0 ;;
-        *) echo -e "${RED}[ERROR] Opción inválida${NC}" ;;
+        9) echo "Goodbye"; exit 0 ;;
+        *) echo -e "${RED}[ERROR] Invalid option${NC}" ;;
     esac
     
     echo ""
-    read -p "Presiona Enter para continuar..."
+    read -p "Press Enter to continue..."
 done
