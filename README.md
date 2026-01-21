@@ -73,6 +73,37 @@ Once an incident is analyzed, this workflow ensures the right people know immedi
 
 ---
 
+## 🚀 Despliegue Local
+
+### Inicio Rápido (3 pasos)
+
+1. **Configura tu API Key de OpenAI**
+
+   ```bash
+   # Edita el archivo .env
+   OPENAI_API_KEY=sk-tu-clave-aqui
+   ```
+
+2. **Inicia el proyecto**
+
+   ```bash
+   ./start.sh
+   ```
+
+3. **Accede a n8n**: <http://localhost:5678> (admin / admin123)
+
+### URLs de Acceso
+
+| Servicio | URL | Credenciales |
+|----------|-----|--------------|
+| **n8n** | <http://localhost:5678> | admin / admin123 |
+| **Dashboard** | <http://localhost:8501> | - |
+| **PostgreSQL** | localhost:5432 | datacenter_user / datacenter_pass_2024 |
+
+📖 **Documentación completa**: [DEPLOYMENT.md](DEPLOYMENT.md) | [QUICKSTART.md](QUICKSTART.md)
+
+---
+
 ## 🛠️ Technology Stack
 - **Orchestration**: [n8n](https://n8n.io/) (Low-code workflow automation)
 - **Infrastructure**: [Docker](https://www.docker.com/) (Containerization for portable deployment)

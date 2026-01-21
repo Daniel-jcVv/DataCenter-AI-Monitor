@@ -1,9 +1,10 @@
 # Credentials and Environment
 .env
+.env.local
 *credentials*
 *.log
 
-# n8n data
+# Docker volumes
 n8n_data/
 postgres_data/
 
@@ -14,6 +15,21 @@ Thumbs.db
 # info folder
 info/*
 
-
-# Python venv
+# Python
 venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: datacenter-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: datacenter_db
+      POSTGRES_USER: datacenter_user
+      POSTGRES_PASSWORD: datacenter_pass_2024
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/00-init.sh:/docker-entrypoint-initdb.d/00-init.sh
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    networks:
+      - datacenter-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U datacenter_user -d datacenter_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # n8n Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: datacenter-n8n
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/Mexico_City
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n_db
+      - DB_POSTGRESDB_USER=datacenter_user
+      - DB_POSTGRESDB_PASSWORD=datacenter_pass_2024
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/workflows
+    networks:
+      - datacenter-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Streamlit Dashboard (opcional)
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: datacenter-dashboard
+    restart: unless-stopped
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=datacenter_db
+      - DB_USER=datacenter_user
+      - DB_PASSWORD=datacenter_pass_2024
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./dashboard:/app
+    networks:
+      - datacenter-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    driver: local
+  n8n_data:
+    driver: local
+
+networks:
+  datacenter-network:
+    driver: bridge
